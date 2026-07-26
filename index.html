@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Local Kaam – Auto-Scaling Directory</title>
+
+<style>
+/* --- TIER 2 CITY OPTIMIZED DESIGN --- */
+:root {
+  --bg: #EAECEE; 
+  --surface: #ffffff;
+  --text: #000000;
+  --text-light: #555555;
+  --brand-blue: #0056b3; 
+  --whatsapp-green: #25D366; 
+  --border: #cccccc;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; }
+body { background: #333; display: flex; justify-content: center; align-items: center; height: 100vh; }
+
+.phone {
+  width: 375px; height: 812px; background: var(--bg); border-radius: 40px;
+  border: 12px solid #111; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+  position: relative; display: flex; flex-direction: column;
+}
+
+.phone::before {
+  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 25px; background: #111;
+  border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 100;
+}
+
+/* --- HEADER --- */
+header {
+  padding: 40px 16px 15px; background: var(--brand-blue); color: white;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.back-btn { display: none; cursor: pointer; font-size: 24px; padding-right: 4px; font-weight: bold; }
+.app-title { font-weight: bold; font-size: 22px; }
+
+.city-selector {
+  background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px;
+  font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 4px;
+  cursor: pointer; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* --- SCREENS --- */
+.screen { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 80px; }
+.hidden { display: none !important; }
+
+/* --- BIG ACCESSIBLE INPUTS --- */
+.search-container input, .form-group input {
+  width: 100%; padding: 16px; border-radius: 8px;
+  border: 2px solid var(--border); background: var(--surface);
+  font-size: 18px; outline: none;
+}
+.search-container input:focus, .form-group input:focus { border-color: var(--brand-blue); }
+
+/* --- HOME GRID --- */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+.card {
+  background: var(--surface); padding: 24px 12px; border-radius: var(--radius);
+  text-align: center; cursor: pointer; border: 2px solid var(--border);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+.card:active { background: #f0f0f0; }
+.card-icon { font-size: 40px; display: block; margin-bottom: 8px; }
+.card-title { font-weight: bold; font-size: 16px; color: var(--text); }
+.card-hindi { font-size: 13px; color: var(--brand-blue); font-weight: bold; margin-top: 4px; display: block;}
+
+/* --- WORKER LIST --- */
+.worker-card {
+  background: var(--surface); border-radius: var(--radius); padding: 16px;
+  margin-bottom: 16px; border: 1px solid var(--border);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+.worker-info { margin-bottom: 12px; }
+.worker-info h4 { font-size: 20px; color: var(--text); margin-bottom: 4px; }
+.worker-info p { font-size: 16px; color: var(--text-light); font-weight: 500; }
+.worker-city-badge {
+  display: inline-block; background: #e3f2fd; color: var(--brand-blue);
+  font-size: 12px; padding: 2px 8px; border-radius: 12px; margin-top: 4px; font-weight: bold;
+}
+.worker-skills {
+  font-size: 13px; color: var(--brand-blue); margin-top: 6px; font-weight: bold;
+}
+.call-btn {
+  background: var(--whatsapp-green); color: white; border: none; padding: 14px;
+  border-radius: 8px; font-weight: bold; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px; 
+  text-decoration: none; width: 100%; margin-top: 10px;
+}
+.call-btn:active { background: #1DA851; }
+
+/* --- REGISTRATION FORM --- */
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-size: 16px; font-weight: bold; margin-bottom: 8px; color: var(--text); }
+.help-text { font-size: 13px; color: var(--text-light); margin-bottom: 8px; display: block; }
+.submit-btn {
+  width: 100%; background: var(--brand-blue); color: white; border: none;
+  padding: 18px; border-radius: 8px; font-weight: bold; font-size: 20px; margin-top: 10px; cursor: pointer;
+}
+.submit-btn:disabled { background: #999; cursor: not-allowed; }
+
+/* Multi-Select Chips */
+.chip-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+  padding: 10px 16px; border: 2px solid var(--border); border-radius: 20px;
+  font-size: 14px; font-weight: bold; color: var(--text-light); background: var(--surface);
+  cursor: pointer; transition: all 0.2s;
+}
+.chip.selected {
+  background: #e3f2fd; border-color: var(--brand-blue); color: var(--brand-blue);
+}
+
+/* OTP Section */
+.otp-section {
+  background: #fff8e1; border: 2px dashed #ffb300; padding: 16px; border-radius: 12px;
+  margin-top: 20px; display: none; flex-direction: column; gap: 12px;
+}
+.otp-section input { border-color: #ffb300; text-align: center; letter-spacing: 4px; font-weight: bold;}
+
+/* --- BOTTOM NAV --- */
+.nav {
+  position: absolute; bottom: 0; width: 100%; display: flex; justify-content: space-around;
+  background: var(--surface); border-top: 2px solid var(--border); padding: 12px 0 25px; z-index: 10;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  color: var(--text-light); font-size: 14px; font-weight: bold; width: 50%; text-align: center; cursor: pointer;
+}
+.nav-item.active { color: var(--brand-blue); }
+.nav-icon { font-size: 24px; }
+
+/* --- MODALS --- */
+.modal-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7); display: none; flex-direction: column; z-index: 200;
+}
+.bottom-sheet {
+  position: absolute; bottom: 0; left: 0; width: 100%; background: var(--surface);
+  border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px;
+  transform: translateY(100%); transition: transform 0.3s ease-out; display: flex; flex-direction: column;
+  max-height: 80%;
+}
+.bottom-sheet.open { transform: translateY(0); }
+.city-option {
+  padding: 16px; border-bottom: 1px solid var(--border); font-size: 18px; font-weight: bold;
+  display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+}
+.city-list-container { overflow-y: auto; flex: 1; margin-top: 10px; }
+.add-new-btn { color: var(--brand-blue); justify-content: center; border: 2px dashed var(--brand-blue); border-radius: 8px; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <header>
+    <div class="header-left">
+      <span class="back-btn" id="backBtn" onclick="goBack()">←</span>
+      <span class="app-title" id="title">Kaam 🛠️</span>
+    </div>
+    <div class="city-selector" onclick="openCityModal()">
+      📍 <span id="headerCityLabel">Sirsa</span> ▾
+    </div>
+  </header>
+
+  <!-- HOME SCREEN -->
+  <div class="screen" id="home">
+    <div class="search-container" style="margin-bottom: 16px;">
+      <input type="text" placeholder="Search Kaam (e.g. Mistri)..." oninput="search(this.value)">
+    </div>
+    <h3 style="margin-bottom: 8px; font-size: 18px;">Kya kaam hai? (Categories)</h3>
+    <div class="grid" id="categories"></div>
+  </div>
+
+  <!-- LIST SCREEN -->
+  <div class="screen hidden" id="list">
+    <div class="search-container" style="margin-bottom: 16px;">
+      <input type="text" placeholder="Search Mohalla or Name..." oninput="filterWorkers(this.value)">
+    </div>
+    <div id="workers"></div>
+  </div>
+
+  <!-- REGISTER SCREEN -->
+  <div class="screen hidden" id="register">
+    <h3 style="margin-bottom: 20px; font-size: 22px;">Mistri/Worker Form 👷</h3>
+    
+    <div id="registrationForm">
+      <div class="form-group">
+        <label>Aapka Naam (Name)</label>
+        <input type="text" id="regName" placeholder="e.g. Suresh Mistri">
+      </div>
+      <div class="form-group">
+        <label>Mobile Number (For OTP)</label>
+        <input type="tel" id="regPhone" placeholder="10-digit number" maxlength="10">
+      </div>
+      
+      <div class="form-group">
+        <label>Shahar / Gaon (City/Village)</label>
+        <input type="text" id="regCity" list="dynamicLocations" placeholder="e.g. Sirsa, Kariwala...">
+        <datalist id="dynamicLocations"></datalist>
+      </div>
+      
+      <div class="form-group">
+        <label>Area / Mohalla</label>
+        <input type="text" id="regArea" placeholder="e.g. Auto Market, Main Chownk">
+      </div>
+      
+      <div class="form-group">
+        <label>Kaam (Category - Select Multiple)</label>
+        <span class="help-text">Jo jo kaam karte ho, sab chunein:</span>
+        <div class="chip-grid" id="chipGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      
+      <button class="submit-btn" id="sendOtpBtn" onclick="initiateOTP()">Send OTP (Verify Number)</button>
+    </div>
+
+    <!-- OTP SECTION (Hidden by default) -->
+    <div class="otp-section" id="otpSection">
+      <label style="font-weight: bold;">Enter OTP sent to <span id="displayPhone"></span></label>
+      <span class="help-text" style="color: #d84315;">Mockup Note: Type '1234' to verify</span>
+      <input type="number" id="otpInput" placeholder="Enter 4-digit OTP" maxlength="4">
+      <button class="submit-btn" style="background: var(--whatsapp-green);" onclick="verifyAndSave()">Verify & List My Name</button>
+      <div style="text-align: center; color: var(--brand-blue); font-weight: bold; cursor: pointer; margin-top: 8px;" onclick="cancelOTP()">Edit Number</div>
+    </div>
+  </div>
+
+  <!-- CITY SELECTION BOTTOM SHEET -->
+  <div class="modal-overlay" id="cityModalOverlay" onclick="closeCityModal(event)">
+    <div class="bottom-sheet" id="cityBottomSheet" onclick="event.stopPropagation()">
+      <h3 style="margin-bottom: 12px; font-size: 20px;">Shahar ya Gaon chunein</h3>
+      <div class="search-container" style="padding: 0;">
+        <input type="text" id="citySearchInput" placeholder="Type city or village name..." oninput="filterCityModal(this.value)">
+      </div>
+      <div class="city-list-container" id="cityListContainer"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="nav">
+    <div class="nav-item active" id="navHome" onclick="goHome()">
+      <span class="nav-icon">🏠</span>
+      <span>Home</span>
+    </div>
+    <div class="nav-item" id="navReg" onclick="openRegister()">
+      <span class="nav-icon">➕</span>
+      <span>Add Worker</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- CORE DATA ---
+let savedLocations = JSON.parse(localStorage.getItem('dynamicLocationsList')) || ['Sirsa', 'Hisar', 'Fatehabad', 'Rania', 'Ellenabad'];
+let selectedCity = localStorage.getItem('userCity') || 'Sirsa';
+
+const categoriesData = [
+  { name: 'Electrician', hindi: 'Bijliwala', icon: '⚡' },
+  { name: 'Plumber', hindi: 'Nalwala', icon: '🚰' },
+  { name: 'Carpenter', hindi: 'Badhai', icon: '🪚' },
+  { name: 'AC/Fridge', hindi: 'Repair', icon: '❄️' },
+  { name: 'Painter', hindi: 'Rangwala', icon: '🎨' },
+  { name: 'Mechanic', hindi: 'Mistri', icon: '🔧' }
+];
+
+// Note: Using an ARRAY for categories now to support multi-select
+let workers = JSON.parse(localStorage.getItem('multiCatWorkersData') || '[]');
+if (workers.length === 0) {
+  workers = [
+    { name: 'Raju Sharma', phone: '9876543210', area: 'Barnala Road', city: 'Sirsa', categories: ['Electrician', 'AC/Fridge'] },
+    { name: 'Chacha Mistri', phone: '9876500001', area: 'Auto Market', city: 'Sirsa', categories: ['Mechanic'] },
+    { name: 'Suresh Allrounder', phone: '9876500002', area: 'Begu Road', city: 'Sirsa', categories: ['Plumber', 'Carpenter', 'Painter'] }
+  ];
+  localStorage.setItem('multiCatWorkersData', JSON.stringify(workers));
+}
+
+let currentCategory = '';
+let currentScreen = 'home';
+let selectedWorkerCategories = [];
+
+function toTitleCase(str) {
+  return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()).trim();
+}
+
+// --- INITIALIZATION ---
+function init() {
+  updateCityUI();
+  renderCategories(categoriesData);
+  populateDataLists();
+  renderRegistrationChips();
+}
+
+function populateDataLists() {
+  let dataList = document.getElementById('dynamicLocations');
+  dataList.innerHTML = '';
+  savedLocations.sort().forEach(loc => {
+    dataList.innerHTML += `<option value="${loc}">`;
+  });
+}
+
+// --- CITY LOGIC ---
+function updateCityUI() {
+  document.getElementById('headerCityLabel').innerText = selectedCity;
+  document.getElementById('regCity').value = selectedCity;
+}
+
+function openCityModal() {
+  document.getElementById('citySearchInput').value = '';
+  document.getElementById('cityModalOverlay').style.display = 'flex';
+  setTimeout(() => { document.getElementById('cityBottomSheet').classList.add('open'); }, 10);
+  renderCityModalList(savedLocations);
+}
+
+function closeCityModal(e) {
+  if (e && e.target !== document.getElementById('cityModalOverlay')) return;
+  document.getElementById('cityBottomSheet').classList.remove('open');
+  setTimeout(() => { document.getElementById('cityModalOverlay').style.display = 'none'; }, 300);
+}
+
+function filterCityModal(query) {
+  const q = query.toLowerCase().trim();
+  const filtered = savedLocations.filter(loc => loc.toLowerCase().includes(q));
+  renderCityModalList(filtered, q);
+}
+
+function renderCityModalList(list, query = '') {
+  let cont = document.getElementById('cityListContainer');
+  cont.innerHTML = '';
+  list.sort().forEach(c => {
+    cont.innerHTML += `
+      <div class="city-option" onclick="changeCity('${c}')">${c} <span style="color: var(--brand-blue);">${c === selectedCity ? '✓' : ''}</span></div>
+    `;
+  });
+  if (query && !list.some(l => l.toLowerCase() === query)) {
+    const newPlace = toTitleCase(query);
+    cont.innerHTML += `<div class="city-option add-new-btn" onclick="changeCity('${newPlace}', true)">+ Add "${newPlace}"</div>`;
+  }
+}
+
+function changeCity(newCity, isNew = false) {
+  newCity = toTitleCase(newCity);
+  if (isNew && !savedLocations.includes(newCity)) {
+    savedLocations.push(newCity);
+    localStorage.setItem('dynamicLocationsList', JSON.stringify(savedLocations));
+    populateDataLists();
+  }
+  selectedCity = newCity;
+  localStorage.setItem('userCity', selectedCity);
+  updateCityUI();
+  closeCityModal();
+  if (currentScreen === 'list') renderWorkers();
+}
+
+// --- RENDERING & NAVIGATION ---
+function renderCategories(cats) {
+  let c = document.getElementById('categories');
+  c.innerHTML = '';
+  cats.forEach(cat => {
+    c.innerHTML += `<div class='card' onclick="handleCategoryClick('${cat.name}')">
+        <span class="card-icon">${cat.icon}</span>
+        <span class="card-title">${cat.name}</span>
+        <span class="card-hindi">${cat.hindi}</span>
+      </div>`;
+  });
+}
+
+function handleCategoryClick(cat) {
+  currentCategory = cat;
+  switchScreen('list');
+  document.getElementById('title').innerText = cat;
+  document.getElementById('backBtn').style.display = 'block';
+  renderWorkers();
+}
+
+function renderWorkers(query = '') {
+  let html = '';
+  const q = query.toLowerCase();
+  
+  const filtered = workers.filter(w => 
+    w.categories.includes(currentCategory) && 
+    w.city === selectedCity &&
+    (w.name.toLowerCase().includes(q) || w.area.toLowerCase().includes(q))
+  );
+
+  filtered.forEach(w => {
+    let otherSkills = w.categories.filter(c => c !== currentCategory).join(', ');
+    let skillsHTML = otherSkills ? `<div class="worker-skills">Also does: ${otherSkills}</div>` : '';
+
+    html += `
+      <div class='worker-card'>
+        <div class='worker-info'>
+          <h4>${w.name}</h4>
+          <p>📍 ${w.area} <span class="worker-city-badge">${w.city}</span></p>
+          ${skillsHTML}
+        </div>
+        <a href="tel:${w.phone}" class='call-btn'>📞 Call Now</a>
+      </div>`;
+  });
+  
+  document.getElementById('workers').innerHTML = html || `
+    <div style="text-align: center; color: var(--text-light); margin-top: 40px;">
+      <p style="font-size: 20px; font-weight: bold;">Koi nahi mila 🤷‍♂️</p>
+      <p>Try searching another area in ${selectedCity}.</p>
+      <button onclick="openRegister()" style="margin-top:20px; padding:12px 20px; background:var(--brand-blue); color:white; border:none; border-radius:8px; font-weight:bold; font-size:16px;">Be the first to list here!</button>
+    </div>`;
+}
+
+function filterWorkers(q) { renderWorkers(q); }
+
+function search(q) {
+  const filtered = categoriesData.filter(c => 
+    c.name.toLowerCase().includes(q.toLowerCase()) || 
+    c.hindi.toLowerCase().includes(q.toLowerCase())
+  );
+  renderCategories(filtered);
+}
+
+// --- REGISTRATION & OTP LOGIC ---
+function renderRegistrationChips() {
+  let chipGrid = document.getElementById('chipGrid');
+  chipGrid.innerHTML = '';
+  categoriesData.forEach(c => {
+    chipGrid.innerHTML += `<div class="chip" id="chip-${c.name}" onclick="toggleCategory('${c.name}')">${c.name}</div>`;
+  });
+}
+
+function toggleCategory(catName) {
+  const chip = document.getElementById(`chip-${catName}`);
+  if (selectedWorkerCategories.includes(catName)) {
+    selectedWorkerCategories = selectedWorkerCategories.filter(c => c !== catName);
+    chip.classList.remove('selected');
+  } else {
+    selectedWorkerCategories.push(catName);
+    chip.classList.add('selected');
+  }
+}
+
+function initiateOTP() {
+  let n = document.getElementById('regName').value;
+  let p = document.getElementById('regPhone').value;
+  let city = toTitleCase(document.getElementById('regCity').value);
+  let a = document.getElementById('regArea').value;
+  
+  if (!n || !p || !a || !city) return alert('Sab details bharna zaroori hai (Fill all fields).');
+  if (p.length !== 10) return alert('Enter a valid 10-digit phone number.');
+  if (selectedWorkerCategories.length === 0) return alert('Kam se kam ek kaam chunein (Select at least one category).');
+  
+  document.getElementById('sendOtpBtn').style.display = 'none';
+  document.getElementById('otpSection').style.display = 'flex';
+  document.getElementById('displayPhone').innerText = '+91 ' + p;
+  
+  document.getElementById('sendOtpBtn').innerText = 'Sending...';
+}
+
+function cancelOTP() {
+  document.getElementById('sendOtpBtn').style.display = 'block';
+  document.getElementById('sendOtpBtn').innerText = 'Send OTP (Verify Number)';
+  document.getElementById('otpSection').style.display = 'none';
+  document.getElementById('otpInput').value = '';
+}
+
+function verifyAndSave() {
+  let otp = document.getElementById('otpInput').value;
+  if (otp !== '1234') {
+    return alert('Galat OTP (Wrong OTP). Hint: Use 1234');
+  }
+
+  let n = document.getElementById('regName').value;
+  let p = document.getElementById('regPhone').value;
+  let city = toTitleCase(document.getElementById('regCity').value);
+  let a = document.getElementById('regArea').value;
+  
+  if (!savedLocations.includes(city)) {
+    savedLocations.push(city);
+    localStorage.setItem('dynamicLocationsList', JSON.stringify(savedLocations));
+    populateDataLists();
+  }
+
+  workers.push({name: n, phone: p, area: a, city: city, categories: selectedWorkerCategories});
+  localStorage.setItem('multiCatWorkersData', JSON.stringify(workers));
+  
+  document.getElementById('regName').value = '';
+  document.getElementById('regPhone').value = '';
+  document.getElementById('regArea').value = '';
+  selectedWorkerCategories = [];
+  renderRegistrationChips();
+  cancelOTP();
+  
+  alert(`Number Verified! Successfully listed in ${city}.`);
+  
+  if (city !== selectedCity) changeCity(city);
+  else goHome();
+}
+
+function switchScreen(id) {
+  currentScreen = id;
+  ['home', 'list', 'register'].forEach(s => document.getElementById(s).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function goHome() {
+  switchScreen('home');
+  setNav('navHome');
+  document.getElementById('title').innerText = 'Kaam 🛠️';
+  document.getElementById('backBtn').style.display = 'none';
+  renderCategories(categoriesData);
+}
+
+function goBack() { goHome(); }
+
+function openRegister() {
+  switchScreen('register');
+  setNav('navReg');
+  document.getElementById('title').innerText = 'Add Worker';
+  document.getElementById('backBtn').style.display = 'block';
+  
+  cancelOTP();
+}
+
+function setNav(id) {
+  document.querySelectorAll('.nav-item').forEach(d => d.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+init();
+</script>
+
+</body>
+</html>
